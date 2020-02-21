@@ -1,5 +1,16 @@
+const cookieName = "cart";
+const cookieDuration = 7;
+
 window.onload = function () {
-  getProducts();
+  const pageId = document.body.id;
+  switch (pageId) {
+    case "index" :
+      getProducts();
+      break;
+    case "checkout" :
+      getProductsInCart();
+      break;
+  }
 };
 
 function getProducts() {
@@ -10,6 +21,17 @@ function getProducts() {
     response.forEach(function (product) {
       generateProduct(product);
     });
+  });
+}
+
+function getProductsInCart() {
+  const client = new HttpClient();
+  client.get('http://localhost:8082/api/checkout', function (response) {
+    console.log(response);
+
+    //response.forEach(function (product) {
+    //  generateProduct(product);
+    //});
   });
 }
 
@@ -29,30 +51,41 @@ const generateProduct = function (product) {
 };
 
 const addToCart = function (productId) {
-  const products = this.getCartProduct();
+  let isProductExisted = false;
+  const productsInCart = this.getCartProduct();
 
-  if (products.length > 0) {
-    products.forEach(function (p) {
-      if (p.productId === productId) {
-        p.quantity++;
-      } else {
-        products.push({
-          productId: productId,
-          quantity: 1
-        });
+  if (hasProducts()) {
+    updateCart();
+  }
+
+  if (!isProductExisted) {
+    addToCart();
+  }
+
+  function hasProducts() {
+    return productsInCart.length > 0;
+  }
+
+  function updateCart() {
+    productsInCart.forEach(function (product) {
+      if (product.productId === productId) {
+        product.quantity++;
+        isProductExisted = true;
+        return true;
       }
     });
-  } else {
-    products.push({
+    return false;
+  }
+
+  function addToCart() {
+    productsInCart.push({
       productId: productId,
       quantity: 1
     });
   }
 
-  let data = JSON.stringify(products);
-
-  setCookie("cart", data, 7);
-  console.log("Product" + productId + " is added to cart!");
+  setCookie(cookieName, JSON.stringify(productsInCart), cookieDuration);
+  console.log("Product" + productId + " is added to the cart!");
 };
 
 function getCartProduct() {
@@ -69,6 +102,7 @@ const HttpClient = function () {
   this.get = function (url, callback) {
     const req = new XMLHttpRequest();
     req.responseType = "json";
+    req.withCredentials = false;
     req.onreadystatechange = function () {
       if (req.readyState === 4 && req.status === 200) {
         callback(req.response);

@@ -1,12 +1,15 @@
 package com.store.product.contoller;
 
 import com.store.product.domain.Product;
+import com.store.product.dto.CartDto;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,5 +32,15 @@ public class ProductController {
   public ResponseEntity<Product> findById(@PathVariable long productId) {
     Product product = new Product(productId, "Product name", "Product description", 3500, 10);
     return ResponseEntity.ok(product);
+  }
+
+  @PostMapping
+  public ResponseEntity<List<Product>> findAllById(@RequestBody List<CartDto> cart) {
+
+    List<Product> products = Arrays.asList(
+        new Product(1L, "Product name", "Product description", 3500, 10),
+        new Product(3L, "Product name 3", "Product description 3", 2500, 1)
+    );
+    return ResponseEntity.ok(products);
   }
 }
