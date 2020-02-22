@@ -1,9 +1,10 @@
 package com.store.product.contoller;
 
 import com.store.product.domain.Product;
-import com.store.product.dto.CartDto;
-import java.util.Arrays;
+import com.store.product.repository.ProductRepository;
 import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,31 +17,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin
 @RequestMapping(path = "/api/products", produces = "application/json")
+@Slf4j
 public class ProductController {
+
+  private final ProductRepository productRepository;
+
+  public ProductController(ProductRepository productRepository) {
+    this.productRepository = productRepository;
+  }
 
   @GetMapping
   public ResponseEntity<List<Product>> findAll() {
-    List<Product> products = Arrays.asList(
-        new Product(1L, "Product name", "Product description", 3500, 10),
-        new Product(2L, "Product name 2", "Product description 2", 1500, 5),
-        new Product(3L, "Product name 3", "Product description 3", 2500, 1)
-    );
+    List<Product> products = productRepository.findAll();
+    log.info(products.toString());
     return ResponseEntity.ok(products);
   }
 
   @GetMapping("/{productId}")
-  public ResponseEntity<Product> findById(@PathVariable long productId) {
-    Product product = new Product(productId, "Product name", "Product description", 3500, 10);
+  public ResponseEntity<Optional<Product>> findById(@PathVariable long productId) {
+    Optional<Product> product = productRepository.findById(productId);
+    log.info(product.toString());
     return ResponseEntity.ok(product);
   }
 
-  @PostMapping
-  public ResponseEntity<List<Product>> findAllById(@RequestBody List<CartDto> cart) {
-
-    List<Product> products = Arrays.asList(
-        new Product(1L, "Product name", "Product description", 3500, 10),
-        new Product(3L, "Product name 3", "Product description 3", 2500, 1)
-    );
+  @PostMapping("/find")
+  public ResponseEntity<List<Product>> findAllById(@RequestBody List<Product> cartProducts) {
+    List<Product> products = productRepository.findAllForCart(cartProducts);
+    log.info(products.toString());
     return ResponseEntity.ok(products);
   }
 }

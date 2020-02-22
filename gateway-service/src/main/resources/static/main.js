@@ -4,10 +4,10 @@ const cookieDuration = 7;
 window.onload = function () {
   const pageId = document.body.id;
   switch (pageId) {
-    case "index" :
+    case "index":
       getProducts();
       break;
-    case "checkout" :
+    case "checkout":
       getProductsInCart();
       break;
   }
@@ -15,10 +15,10 @@ window.onload = function () {
 
 function getProducts() {
   const client = new HttpClient();
-  client.get('http://localhost:8081/api/products', function (response) {
-    console.log(response);
+  client.get('http://localhost:8081/api/products', function (data) {
+    console.log(data);
 
-    response.forEach(function (product) {
+    data.response.forEach(function (product) {
       generateProduct(product);
     });
   });
@@ -26,13 +26,29 @@ function getProducts() {
 
 function getProductsInCart() {
   const client = new HttpClient();
-  client.get('http://localhost:8082/api/checkout', function (response) {
-    console.log(response);
+  client.post('http://localhost:8082/api/checkout', getCartProduct(),
+      function (data) {
+        console.log(data);
 
-    //response.forEach(function (product) {
-    //  generateProduct(product);
-    //});
-  });
+        data.response.forEach(function (product) {
+          generateCartProduct(product);
+        });
+      });
+}
+
+function makeOrder() {
+  const client = new HttpClient();
+  const form = document.getElementById("order-form");
+  const formData = new FormData(form);
+  console.log(formData);
+  client.post('http://localhost:8082/api/checkout/makeOrder', formData,
+      function (data) {
+        console.log(data);
+
+        if (data.status === 200) {
+          //alert("Order is OK!");
+        }
+      });
 }
 
 const generateProduct = function (product) {
@@ -48,6 +64,18 @@ const generateProduct = function (product) {
       + '</div>';
 
   document.getElementById("products").insertAdjacentHTML('beforeend', html);
+};
+
+const generateCartProduct = function (product) {
+  const html = '<div class="card mb-4 shadow-sm">'
+      + '<div class="card-header"><h4 class="my-0 font-weight-normal">'
+      + product.name + '</h4></div>'
+      + '<div class="card-body">'
+      + '<h1 class="card-title pricing-card-title">$' + product.price + '</h1>'
+      + '<p>' + product.description + '</p>'
+      + '</div>';
+
+  document.getElementById("cart-product").insertAdjacentHTML('beforeend', html);
 };
 
 const addToCart = function (productId) {
@@ -99,18 +127,31 @@ function getCartProduct() {
 }
 
 const HttpClient = function () {
+  const req = new XMLHttpRequest();
+  req.responseType = "json";
+
   this.get = function (url, callback) {
-    const req = new XMLHttpRequest();
-    req.responseType = "json";
-    req.withCredentials = false;
     req.onreadystatechange = function () {
       if (req.readyState === 4 && req.status === 200) {
-        callback(req.response);
+        callback(req);
       }
     };
 
     req.open("GET", url, true);
-    req.send(null);
+    req.setRequestHeader("Content-Type", "application/json");
+    req.send();
+  };
+
+  this.post = function (url, data, callback) {
+    req.onreadystatechange = function () {
+      if (req.readyState === 4 && req.status === 200) {
+        callback(req);
+      }
+    };
+
+    req.open("POST", url, true);
+    req.setRequestHeader("Content-Type", "application/json");
+    req.send(JSON.stringify(data));
   }
 };
 
