@@ -11,44 +11,67 @@ window.onload = function () {
       getProductsInCart();
       break;
   }
+
+  this.makeOrder();
 };
 
 function getProducts() {
   const client = new HttpClient();
-  client.get('http://localhost:8081/api/products', function (data) {
-    console.log(data);
+  client.get('http://localhost:8080/product-service/api/products',
+      function (responseData) {
+        console.log(responseData);
 
-    data.response.forEach(function (product) {
-      generateProduct(product);
-    });
-  });
+        responseData.response.forEach(function (product) {
+          generateProduct(product);
+        });
+      });
 }
 
 function getProductsInCart() {
   const client = new HttpClient();
-  client.post('http://localhost:8082/api/checkout', getCartProduct(),
-      function (data) {
-        console.log(data);
+  client.post('http://localhost:8080/checkout-service/api/checkout',
+      getCartProduct(),
+      function (responseData) {
+        console.log(responseData);
 
-        data.response.forEach(function (product) {
+        responseData.response.forEach(function (product) {
           generateCartProduct(product);
         });
       });
 }
 
 function makeOrder() {
-  const client = new HttpClient();
-  const form = document.getElementById("order-form");
-  const formData = new FormData(form);
-  console.log(formData);
-  client.post('http://localhost:8082/api/checkout/makeOrder', formData,
-      function (data) {
-        console.log(data);
+  const orderForm = document.getElementById("order-form");
 
-        if (data.status === 200) {
-          //alert("Order is OK!");
-        }
-      });
+  if (orderForm) {
+    orderForm.addEventListener("submit",
+        function (e) {
+          e.preventDefault();
+
+          const client = new HttpClient();
+          const form = document.getElementById("order-form");
+          const formData = new FormData(form);
+          const requestData = Object.fromEntries(formData);
+          requestData.cart = getCartProduct();
+          console.log(requestData);
+
+          client.post(
+              'http://localhost:8080/checkout-service/api/checkout/makeOrder',
+              requestData,
+              function (responseData) {
+                console.log(responseData);
+
+                if (responseData.status === 200
+                    && responseData.response.code === "SUCCESS") {
+                  alert(responseData.response.message);
+                  //window.location.replace("/");
+                  //this.deleteCookie(cookieName);
+                } else {
+                  alert("Failure has occurred while payment process.");
+                }
+              });
+        });
+  }
 }
 
 const generateProduct = function (product) {
@@ -58,7 +81,7 @@ const generateProduct = function (product) {
       + '<div class="card-body">'
       + '<h1 class="card-title pricing-card-title">$' + product.price + '</h1>'
       + '<p>' + product.description + '</p>'
-      + '<button type="button" onclick="addToCart(' + product.id
+      + '<button type="button" onclick="addToCart(' + product.productId
       + ')" class="btn btn-lg btn-block btn-primary">Buy</button>'
       + '</div>'
       + '</div>';
@@ -73,6 +96,7 @@ const generateCartProduct = function (product) {
       + '<div class="card-body">'
       + '<h1 class="card-title pricing-card-title">$' + product.price + '</h1>'
       + '<p>' + product.description + '</p>'
+      + '<p>Quantity: ' + product.quantity + '</p>'
       + '</div>';
 
   document.getElementById("cart-product").insertAdjacentHTML('beforeend', html);
@@ -82,16 +106,12 @@ const addToCart = function (productId) {
   let isProductExisted = false;
   const productsInCart = this.getCartProduct();
 
-  if (hasProducts()) {
+  if (productsInCart.length > 0) {
     updateCart();
   }
 
   if (!isProductExisted) {
     addToCart();
-  }
-
-  function hasProducts() {
-    return productsInCart.length > 0;
   }
 
   function updateCart() {
@@ -113,7 +133,14 @@ const addToCart = function (productId) {
   }
 
   setCookie(cookieName, JSON.stringify(productsInCart), cookieDuration);
-  console.log("Product" + productId + " is added to the cart!");
+
+  if (isProductExisted) {
+    console.log("Product" + productId + " is updated in the cart!");
+    alert("Product" + productId + " is added to the cart!")
+  } else {
+    console.log("Product" + productId + " is added to the cart!");
+    alert("Product" + productId + " is updated in the cart!")
+  }
 };
 
 function getCartProduct() {
@@ -176,4 +203,8 @@ function getCookie(name) {
     }
   }
   return "";
+}
+
+function deleteCookie(name) {
+  document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }

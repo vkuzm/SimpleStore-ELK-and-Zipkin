@@ -1,4 +1,4 @@
-package com.store.checkout.dto;
+package com.store.payment.dto;
 
 import java.util.ArrayList;
 import java.util.List;

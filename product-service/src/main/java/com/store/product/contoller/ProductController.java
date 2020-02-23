@@ -40,8 +40,8 @@ public class ProductController {
     return ResponseEntity.ok(product);
   }
 
-  @PostMapping("/find")
-  public ResponseEntity<List<Product>> findAllById(@RequestBody List<Product> cartProducts) {
+  @PostMapping("/findAllByList")
+  public ResponseEntity<List<Product>> findAllByList(@RequestBody List<Product> cartProducts) {
     List<Product> products = productRepository.findAllForCart(cartProducts);
     log.info(products.toString());
     return ResponseEntity.ok(products);

@@ -9,9 +9,11 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>gateway-service</module>
+    <module>registry-service</module>
+    <module>zipkin-service</module>
     <module>product-service</module>
     <module>checkout-service</module>
     <module>payment-service</module>
-    <module>gateway-service</module>
   </modules>
 </project>

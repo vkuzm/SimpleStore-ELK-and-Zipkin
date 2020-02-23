@@ -8,10 +8,11 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.2.4.RELEASE</version>
     <relativePath/>
-  </parent>  <groupId>com.store.gateway</groupId>
-  <artifactId>gateway</artifactId>
+  </parent>
+  <groupId>com.store.gateway</groupId>
+  <artifactId>gateway-service</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>gateway</name>
+  <name>gateway-service</name>
 
   <properties>
     <java.version>1.8</java.version>
@@ -20,12 +21,25 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-sleuth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>4.9</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-gateway</artifactId>
+      <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-zipkin</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
