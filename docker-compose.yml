@@ -2,6 +2,45 @@ version: '3.5'
 
 services:
 
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    networks:
+      - store
+
+  product-service:
+    build:
+      context: ./product-service
+    container_name: product-service
+    networks:
+      - store
+
+  checkout-service:
+    build:
+      context: ./checkout-service
+    container_name: checkout-service
+    networks:
+      - store
+
+  payment-service:
+    build:
+      context: ./payment-service
+    container_name: payment-service
+    networks:
+      - store
+
+  eureka:
+    build:
+      context: ./registry-service
+    container_name: eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - store
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
     container_name: elasticsearch
@@ -13,7 +52,7 @@ services:
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
-      - elk
+      - store
 
   logstash:
     image: docker.elastic.co/logstash/logstash:7.2.0
@@ -26,7 +65,7 @@ services:
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
-      - elk
+      - store
     depends_on:
       - elasticsearch
 
@@ -34,28 +73,27 @@ services:
     image: docker.elastic.co/kibana/kibana:7.2.0
     container_name: kibana
     volumes:
-      - ./kibana/config/*:/usr/share/kibana/config/*:ro
+      - ./kibana/config:/usr/share/kibana/config:ro
     ports:
       - "5601:5601"
     networks:
-      - elk
+      - store
     depends_on:
       - elasticsearch
 
   zipkin:
-    image: zipkin
+    image: openzipkin/zipkin
     container_name: zipkin
-    build:
-      context: ./zipkin-service
     environment:
       JAVA_OPTIONS: "-Xmx80m"
     ports:
       - "9411:9411"
     networks:
-      - elk
+      - store
     depends_on:
       - elasticsearch
 
 networks:
-  elk:
-     driver: bridge
+  store:
+    name: store
+    driver: bridge

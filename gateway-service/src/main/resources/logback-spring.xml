@@ -5,7 +5,7 @@
 
   <!-- Logstash-Configuration -->
   <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-    <destination>elk:4560</destination>
+    <destination>logstash:4560</destination>
     <encoder class="net.logstash.logback.encoder.LogstashEncoder">
       <customFields>{"service_name":"gateway"}</customFields>
       <fieldNames>
