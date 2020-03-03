@@ -2,6 +2,16 @@ version: '3.5'
 
 services:
 
+  eureka:
+    build:
+      context: ./registry-service
+    container_name: eureka
+    hostname: eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - store
+
   gateway-service:
     build:
       context: ./gateway-service
@@ -15,6 +25,8 @@ services:
     build:
       context: ./product-service
     container_name: product-service
+    ports:
+      - "8083:8080"
     networks:
       - store
 
@@ -22,6 +34,8 @@ services:
     build:
       context: ./checkout-service
     container_name: checkout-service
+    ports:
+      - "8082:8080"
     networks:
       - store
 
@@ -29,15 +43,8 @@ services:
     build:
       context: ./payment-service
     container_name: payment-service
-    networks:
-      - store
-
-  eureka:
-    build:
-      context: ./registry-service
-    container_name: eureka
     ports:
-      - "8761:8761"
+      - "8081:8080"
     networks:
       - store
 
@@ -64,10 +71,10 @@ services:
       - "5000:5000"
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    networks:
-      - store
     depends_on:
       - elasticsearch
+    networks:
+      - store
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.2.0
@@ -76,10 +83,10 @@ services:
       - ./kibana/config:/usr/share/kibana/config:ro
     ports:
       - "5601:5601"
-    networks:
-      - store
     depends_on:
       - elasticsearch
+    networks:
+      - store
 
   zipkin:
     image: openzipkin/zipkin
@@ -88,12 +95,10 @@ services:
       JAVA_OPTIONS: "-Xmx80m"
     ports:
       - "9411:9411"
-    networks:
-      - store
     depends_on:
       - elasticsearch
+    networks:
+      - store
 
 networks:
   store:
-    name: store
-    driver: bridge
