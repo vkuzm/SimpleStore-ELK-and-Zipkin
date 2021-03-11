@@ -72,7 +72,7 @@ public class CheckoutController {
 
     HttpEntity<OrderDto> requestEntity = new HttpEntity<>(orderDto, httpHeaders());
     ResponseEntity<String> response = restTemplate
-        .postForEntity("http://localhost:8080/payment-service/api/payment/pay", requestEntity,
+        .postForEntity("http://gateway-service:8080/payment-service/api/payment/pay", requestEntity,
             String.class);
 
     log.info(response.toString());
@@ -90,7 +90,7 @@ public class CheckoutController {
 
     HttpEntity<List<CartDto>> requestEntity = new HttpEntity<>(cartCookie, httpHeaders());
     ResponseEntity<ProductDto[]> response = restTemplate
-        .postForEntity("http://localhost:8080/product-service/api/products/findAllByList",
+        .postForEntity("http://gateway-service:8080/product-service/api/products/findAllByList",
             requestEntity,
             ProductDto[].class);
 

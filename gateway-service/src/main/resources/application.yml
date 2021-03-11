@@ -9,8 +9,8 @@ server:
 
 eureka:
   client:
-    service-url:
-      default-zone: http://eureka:8761/eureka/
+    serviceUrl:
+      defaultZone: http://discovery:8761/eureka/
 
 zuul:
   ignored-services: "*"

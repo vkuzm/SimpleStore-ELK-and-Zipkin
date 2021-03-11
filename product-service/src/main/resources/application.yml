@@ -12,8 +12,5 @@ logging:
 
 eureka:
   client:
-    service-url:
-      default-zone: http://eureka:8761/eureka/
-  instance:
-    leaseRenewalIntervalInSeconds: 5
-    preferIpAddress: true
+    serviceUrl:
+      defaultZone: http://discovery:8761/eureka/
