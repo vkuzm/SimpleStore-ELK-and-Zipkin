@@ -37,40 +37,6 @@ services:
     ports:
       - "8081:8080"
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: elasticsearch
-    volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.2.0
-    container_name: logstash
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-    ports:
-      - "5000:5000"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    depends_on:
-      - elasticsearch
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.2.0
-    container_name: kibana
-    volumes:
-      - ./kibana/config:/usr/share/kibana/config:ro
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
@@ -78,5 +44,17 @@ services:
       JAVA_OPTIONS: "-Xmx80m"
     ports:
       - "9411:9411"
-    depends_on:
-      - elasticsearch
+      
+  grafana:
+    build: ./grafana
+    container_name: grafana
+    mem_limit: 256M
+    ports:
+      - "3000:3000"
+
+#  prometheus:
+#    build: ./prometheus
+#    container_name: prometheus
+#    mem_limit: 256M
+#    ports:
+#    - 9091:9090
